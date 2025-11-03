@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Serviço / Vistoria</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
+
+  <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-lg">
+    <h1 class="text-2xl font-bold text-[#5E2A3E] mb-6 text-center">Serviço / Vistoria</h1>
+
+    <form id="servicoForm" class="space-y-4">
+      
+      <!-- Placa -->
+      <div>
+        <label  for="placaSelect" class="block text-gray-700 font-semibold mb-1">Placa</label>
+        <select name="placa" id="placaSelect"
+                class="w-full border border-gray-300 rounded-xl p-2 focus:ring-2 focus:ring-[#3A3F9E]" required>
+          <option value="">Selecione a placa...</option>
+        </select>
+      </div>
+
+      <!-- Data e Hora -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label for="data" class="block text-gray-700 font-semibold mb-1">Data</label>
+          <input type="date" name="data" id="data" required
+                 class="w-full border border-gray-300 rounded-xl p-2 focus:ring-2 focus:ring-[#3A3F9E]">
+        </div>
+  
+      </div>
+  <div>
+  <label for="horaSelect" class="block text-gray-700 font-semibold mb-1">Hora</label>
+    <select name="hora" id="horaSelect" required
+            class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-[#3A3F9E] focus:outline-none transition-all">
+      <option value="">Selecione um horário</option>
+      <option value="08:00">08:00</option>
+      <option value="08:30">08:30</option>
+      <option value="09:00">09:00</option>
+      <option value="09:30">09:30</option>
+      <option value="10:00">10:00</option>
+      <option value="10:30">10:30</option>
+      <option value="11:00">11:00</option>
+      <option value="11:30">11:30</option>
+      <option value="13:00">13:00</option>
+      <option value="13:30">13:30</option>
+      <option value="14:00">14:00</option>
+      <option value="14:30">14:30</option>
+      <option value="15:00">15:00</option>
+      <option value="15:30">15:30</option>
+      <option value="16:00">16:00</option>
+      <option value="16:30">16:30</option>
+      <option value="17:00">17:00</option>
+      <option value="17:30">17:30</option>
+    </select>
+  </div>
+
+
+
+<!-- Tipo -->
+<div>
+  <label class="block text-gray-700 font-semibold mb-2">Tipo - Envio ou Retorno</label>
+  
+  <div class="flex flex-wrap gap-3 bg-gray-50 border border-gray-200 rounded-xl p-3">
+
+    <label class="flex items-center space-x-2 border border-gray-200 bg-white rounded-xl p-3 hover:shadow-md transition cursor-pointer">
+      <input type="radio" name="tipo" value="Encaminhamento(vistoria/serviço)" class="accent-blue-600 w-5 h-5">
+      <span class="text-gray-800 font-medium">Encaminhamento(vistoria/serviço)</span>
+    </label>
+
+    <label class="flex items-center space-x-2 border border-gray-200 bg-white rounded-xl p-3 hover:shadow-md transition cursor-pointer">
+      <input type="radio" name="tipo" value="Busca ou Devolucão" class="accent-blue-600 w-5 h-5">
+      <span class="text-gray-800 font-medium">Busca ou Devolução</span>
+    </label>
+
+  </div>
+</div>
+
+<!-- Atribuição / Responsável 
+<select id="responsaveisSelect" class="border rounded p-2 w-full">
+  <option value="">Selecione o responsável...</option>
+</select> ESSE FUNCIONA COMO LISTA
+-->
+<div>
+  <label class="block text-gray-700 font-semibold mb-2">Atribuir o Responsável</label>
+  <div id="listaFuncionarios"
+       class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-gray-50 border border-gray-200 rounded-xl p-3">
+    <!-- Funcionários serão carregados via JavaScript -->
+  </div>
+</div>
+
+
+	
+
+
+  <!-- Botão -->
+  <button type="submit"
+      class="w-full bg-[#E53935] text-white font-semibold py-2 rounded-xl hover:bg-[#D17A22] transition">
+    Registrar
+  </button>
+</form>
+
+<p id="mensagem" class="text-center mt-4 text-sm"></p>
+
+
+
+<script>
+
+/*
+const form = document.getElementById("servicoForm");
+  const mensagem = document.getElementById("mensagem");
+  const placaSelect = document.getElementById("placaSelect");
+  const responsaveisSelect = document.getElementById("responsaveisSelect");
+FUNCIONAVA PORÉM NAO REGISTRA NOVO EVENTO */
+
+const form = document.getElementById("servicoForm");
+const mensagem = document.getElementById("mensagem");
+const placaSelect = document.getElementById("placaSelect");
+const listaFuncionarios = document.getElementById("listaFuncionarios");
+
+  /* 🔹 Carrega profissionais via Flask
+async function carregarProfissionais() {
+  try {
+    const res = await fetch('/api/profissionais');
+    const data = await res.json();
+
+    const lista = document.getElementById("listaFuncionarios");
+    lista.innerHTML = ""; // limpa conteúdo anterior
+
+    data.forEach(p => {
+      const item = document.createElement("label");
+      item.className =
+        "flex items-center gap-2 p-2 bg-white border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100";
+
+      item.innerHTML = `
+        <input type="checkbox" name="responsaveis" value="${p.nome}" class="w-4 h-4 text-blue-600">
+        <div>
+          <p class="font-medium text-gray-800">${p.nome}</p>
+          <p class="text-sm text-gray-500">Tel: ${p.telefone}</p>
+        </div>
+      `;
+
+      lista.appendChild(item);
+    });
+  } catch (err) {
+    console.error("Erro ao carregar profissionais:", err);
+  }
+} FUNCIONAVA BEM NO CARREGAMENTO*/
+
+// 🔹 Carrega profissionais via Flask
+async function carregarProfissionais() {
+  try {
+    const res = await fetch('/api/profissionais');
+    const data = await res.json();
+
+    listaFuncionarios.innerHTML = ""; // limpa conteúdo anterior
+
+    data.forEach(p => {
+      const item = document.createElement("label");
+      item.className =
+        "flex items-center gap-2 p-2 bg-white border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100";
+
+      item.innerHTML = `
+        <input type="checkbox" name="responsaveis" value="${p.nome}" class="w-4 h-4 text-blue-600">
+        <div>
+          <p class="font-medium text-gray-800">${p.nome}</p>
+          <p class="text-sm text-gray-500">Tel: ${p.telefone}</p>
+        </div>
+      `;
+      listaFuncionarios.appendChild(item);
+    });
+  } catch (err) {
+    console.error("Erro ao carregar profissionais:", err);
+  }
+}
+
+
+
+
+
+/*  // 🔹 Carrega profissionais via Flask
+  async function carregarProfissionais() {
+    try {
+      const res = await fetch('/api/profissionais');
+      const data = await res.json();
+
+      responsaveisSelect.innerHTML = '<option value="">Selecione o responsável...</option>';
+      data.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.nome;
+        opt.textContent = p.nome;
+        responsaveisSelect.appendChild(opt);
+      });
+    } catch (err) {
+      console.error("Erro ao carregar profissionais:", err);
+    }
+  }
+ESSE FUNCIONA CORRETAMENTE PARA LISTA
+*/
+
+/*
+  // 🔹 Carrega placas via Flask
+  async function carregarPlacas() {
+    try {
+      const res = await fetch('/api/veiculos');
+      const data = await res.json();
+
+      // Ordena placas (A-Z)
+      data.sort((a, b) => a.placa.localeCompare(b.placa));
+
+      placaSelect.innerHTML = '<option value="">Selecione a placa...</option>';
+      data.forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = v.placa;
+        opt.textContent = `${v.placa} - ${v.modelo?.toUpperCase() ?? ''} - ${v.cor?.toUpperCase() ?? ''}`;
+        placaSelect.appendChild(opt);
+      });
+    } catch (err) {
+      console.error("Erro ao carregar placas:", err);
+    }
+  }
+FUNCIONAVA BEM SÓ QUE NÃO REGISTRA NOBO*/
+
+// 🔹 Carrega placas via Flask
+async function carregarPlacas() {
+  try {
+    const res = await fetch('/api/veiculos');
+    const data = await res.json();
+
+    data.sort((a, b) => a.placa.localeCompare(b.placa));
+
+    placaSelect.innerHTML = '<option value="">Selecione a placa...</option>';
+    data.forEach(v => {
+      const opt = document.createElement("option");
+      opt.value = v.placa;
+      opt.textContent = `${v.placa} - ${v.modelo?.toUpperCase() ?? ''} - ${v.cor?.toUpperCase() ?? ''}`;
+      placaSelect.appendChild(opt);
+    });
+  } catch (err) {
+    console.error("Erro ao carregar placas:", err);
+  }
+}
+
+
+// 🔹 Envio do formulário
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  // Pega valores dos inputs
+  const placa = placaSelect.value;
+  const data = document.getElementById("data").value;
+  const hora = document.getElementById("horaSelect").value;
+  const tipo = document.querySelector('input[name="tipo"]:checked')?.value || "";
+
+  // Pega checkboxes selecionados
+  const responsaveis = Array.from(listaFuncionarios.querySelectorAll("input[type=checkbox]:checked"))
+                             .map(cb => cb.value);
+
+  const dados = { placa, data, hora, tipo, responsaveis };
+
+  try {
+    const response = await fetch('/api/servicos', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dados)
+    });
+
+    if (response.ok) {
+      mensagem.textContent = "✅ Registro salvo com sucesso!";
+      mensagem.className = "text-green-600 text-center mt-4";
+      form.reset();
+    } else {
+      const err = await response.text();
+      console.error("Erro:", err);
+      mensagem.textContent = "❌ Erro ao registrar. Verifique o console.";
+      mensagem.className = "text-red-600 text-center mt-4";
+    }
+  } catch (error) {
+    console.error("Erro no envio:", error);
+    mensagem.textContent = "❌ Falha na comunicação com o servidor.";
+    mensagem.className = "text-red-600 text-center mt-4";
+  }
+});
+
+// Inicializa listas
+document.addEventListener('DOMContentLoaded', () => {
+  carregarProfissionais();
+  carregarPlacas();
+});
+</script>
+
+</body>
+</html>
